@@ -2,76 +2,70 @@
 // Set strict types
 declare(strict_types=1);
 
-class Persoon {
+class Nummer {
     /** @var int|null Het ID van de persoon */
-    private ?int $id;
+    private ?int $ID;
 
     /** @var string De voornaam van de persoon */
-    private string $voornaam;
+    private string $AlbumID;
 
     /** @var string De achternaam van de persoon */
-    private string $achternaam;
+    private string $Titel;
 
     /** @var string|null Het telefoonnummer van de persoon */
-    private ?string $telefoonnummer;
+    private ?string $Duur;
 
     /** @var string|null Het e-mailadres van de persoon */
-    private ?string $email;
-
-    /** @var string|null Eventuele opmerkingen over de persoon */
-    private ?string $opmerkingen;
+    private ?string $URL;
 
     /**
      * Constructor voor het maken van een Persoon object.
      *
-     * @param int|null $id Het ID van de persoon.
-     * @param string $voornaam De voornaam van de persoon.
-     * @param string $achternaam De achternaam van de persoon.
-     * @param string|null $telefoonnummer Het telefoonnummer van de persoon (optioneel).
-     * @param string|null $email Het e-mailadres van de persoon (optioneel).
-     * @param string|null $opmerkingen Eventuele opmerkingen over de persoon (optioneel).
+     * @param int|null $ID Het ID van de persoon.
+     * @param string $AlbumID De voornaam van de persoon.
+     * @param string $Titel De achternaam van de persoon.
+     * @param string|null $Duur Het telefoonnummer van de persoon (optioneel).
+     * @param string|null $URL Het e-mailadres van de persoon (optioneel).
      */
-    public function __construct(?int $id, string $voornaam, string $achternaam, ?string $telefoonnummer,
-                                ?string $email, ?string $opmerkingen)
+    public function __construct(?int $ID, string $AlbumID, string $Titel, ?string $Duur,
+                                ?string $URL)
 
     {
-        $this->id = $id;
-        $this->voornaam = $voornaam;
-        $this->achternaam = $achternaam;
-        $this->telefoonnummer = $telefoonnummer;
-        $this->email = $email;
-        $this->opmerkingen = $opmerkingen;
+        $this->ID = $ID;
+        $this->AlbumID = $AlbumID;
+        $this->Titel = $Titel;
+        $this->Duur = $Duur;
+        $this->URL = $URL;
     }
 
     /**
      * Haalt alle personen op uit de database.
      *
      * @param PDO $db De PDO-databaseverbinding.
-     * @return Persoon[] Een array van Persoon-objecten.
+     * @return Nummer[] Een array van Persoon-objecten.
      */
     public static function getAll(PDO $db): array
     {
         // Voorbereiden van de query
-        $stmt = $db->query("SELECT * FROM persoon");
+        $stmt = $db->query("SELECT * FROM Nummer");
 
         // Array om personen op te slaan
-        $personen = [];
+        $Nummer = [];
 
         // Itereren over de resultaten en personen toevoegen aan de array
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $persoon = new Persoon(
-                $row['id'],
-                $row['voornaam'],
-                $row['achternaam'],
-                $row['telefoonnummer'],
-                $row['email'],
-                $row['opmerkingen']
+            $nummers = new Nummer(
+                $row['ID'],
+                $row['AlbumID'],
+                $row['Titel'],
+                $row['Duur'],
+                $row['URL'],
             );
-            $personen[] = $persoon;
+            $Nummer[] = $nummers;
         }
 
         // Retourneer array met personen
-        return $personen;
+        return $Nummer;
     }
 
     /**
@@ -81,7 +75,7 @@ class Persoon {
      * @param int $id Het unieke ID van een persoon waarnaar we zoeken.
      * @return Persoon|null Het gevonden Persoon-object of null als er geen overeenkomstige persoon werd gevonden.
      * */
-    public static function findById(PDO $db, int $id): ?Persoon
+    public static function findById(PDO $db, int $id): ?Nummer
     {
         // Voorbereiden van de query
         $stmt = $db->prepare("SELECT * FROM persoon WHERE id = :id");
@@ -90,7 +84,7 @@ class Persoon {
 
         // Retourneer een persoon als gevonden, anders null
         if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            return new Persoon(
+            return new Nummer(
                 $row['id'],
                 $row['voornaam'],
                 $row['achternaam'],
@@ -130,7 +124,7 @@ class Persoon {
 
         // Itereren over de resultaten en personen toevoegen aan de array
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $personen[] = new Persoon(
+            $personen[] = new Nummer(
                 $row['id'],
                 $row['voornaam'],
                 $row['achternaam'],
@@ -148,12 +142,11 @@ class Persoon {
     public function save(PDO $db): void
     {
         // Voorbereiden van de query
-        $stmt = $db->prepare("INSERT INTO persoon (voornaam, achternaam, telefoonnummer, email, opmerkingen) VALUES (:voornaam, :achternaam, :telefoonnummer, :email, :opmerkingen)");
-        $stmt->bindParam(':voornaam', $this->voornaam);
-        $stmt->bindParam(':achternaam', $this->achternaam);
-        $stmt->bindParam(':telefoonnummer', $this->telefoonnummer);
-        $stmt->bindParam(':email', $this->email);
-        $stmt->bindParam(':opmerkingen', $this->opmerkingen);
+        $stmt = $db->prepare("INSERT INTO Nummer (AlbumID, Titel, Duur, URL) VALUES (:AlbumID, :Titel, :Duur, :URl)");
+        $stmt->bindParam(':AlbumID', $this->AlbumID);
+        $stmt->bindParam(':Titel', $this->Titel);
+        $stmt->bindParam(':Duur', $this->Duur);
+        $stmt->bindParam(':URL', $this->URL);
         $stmt->execute();
     }
 
@@ -161,13 +154,12 @@ class Persoon {
     public function update(PDO $db): void
     {
         // Voorbereiden van de query
-        $stmt = $db->prepare("UPDATE persoon SET voornaam = :voornaam, achternaam = :achternaam, telefoonnummer = :telefoonnummer, email = :email, opmerkingen = :opmerkingen WHERE id = :id");
-        $stmt->bindParam(':id', $this->id);
-        $stmt->bindParam(':voornaam', $this->voornaam);
-        $stmt->bindParam(':achternaam', $this->achternaam);
-        $stmt->bindParam(':telefoonnummer', $this->telefoonnummer);
-        $stmt->bindParam(':email', $this->email);
-        $stmt->bindParam(':opmerkingen', $this->opmerkingen);
+        $stmt = $db->prepare("UPDATE Nummer SET AlbumID = :AlbumID, Titel = :Titel, Duur = :Duur, URL = :URL WHERE id = :id");
+        $stmt->bindParam(':ID', $this->ID);
+        $stmt->bindParam(':AlbumID', $this->AlbumID);
+        $stmt->bindParam(':Titel', $this->Titel);
+        $stmt->bindParam(':Duur', $this->Duur);
+        $stmt->bindParam(':URL', $this->URL);
         $stmt->execute();
     }
 
@@ -196,6 +188,7 @@ class Persoon {
     {
         return $this->URL;
     }
+
 
     // Setters
     public function setVoornaam(string $voornaam): void
